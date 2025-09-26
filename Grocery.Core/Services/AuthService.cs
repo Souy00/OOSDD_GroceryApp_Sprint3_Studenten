@@ -1,22 +1,31 @@
-﻿using Grocery.Core.Helpers;
+﻿using Grocery.Core.Models;
 using Grocery.Core.Interfaces.Services;
-using Grocery.Core.Models;
 
 namespace Grocery.Core.Services
 {
     public class AuthService : IAuthService
     {
-        private readonly IClientService _clientService;
-        public AuthService(IClientService clientService)
+        private readonly List<Client> _clients = new();
+
+        public AuthService()
         {
-            _clientService = clientService;
+            // Voorbeeld gebruiker
+            _clients.Add(new Client(1, "User3", "user3@mail.com", "user3"));
         }
+
         public Client? Login(string email, string password)
         {
-            Client? client = _clientService.Get(email);
-            if (client == null) return null;
-            if (PasswordHelper.VerifyPassword(password, client.Password)) return client;
-            return null;
+            return _clients.FirstOrDefault(c => c.Email == email && c.Password == password);
+        }
+
+        public bool Register(Client client)
+        {
+            if (_clients.Any(c => c.Email == client.Email))
+                return false; // gebruiker bestaat al
+
+            client.Id = _clients.Count + 1;
+            _clients.Add(client);
+            return true;
         }
     }
 }

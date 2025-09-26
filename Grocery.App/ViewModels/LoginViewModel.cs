@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using Grocery.Core.Interfaces.Services;
 using Grocery.Core.Models;
 
+
 namespace Grocery.App.ViewModels
 {
     public partial class LoginViewModel : BaseViewModel
@@ -12,13 +13,16 @@ namespace Grocery.App.ViewModels
         private readonly GlobalViewModel _global;
 
         [ObservableProperty]
-        private string email = "user3@mail.com";
+        private string email = string.Empty;
 
         [ObservableProperty]
-        private string password = "user3";
+        private string password = string.Empty;
 
         [ObservableProperty]
-        private string loginMessage;
+        private string name = string.Empty;
+
+        [ObservableProperty]
+        private string loginMessage = string.Empty;
 
         public LoginViewModel(IAuthService authService, GlobalViewModel global)
         { //_authService = App.Services.GetServices<IAuthService>().FirstOrDefault();
@@ -41,5 +45,26 @@ namespace Grocery.App.ViewModels
                 LoginMessage = "Ongeldige inloggegevens.";
             }
         }
+        [RelayCommand]
+        private void Register()
+        {
+            if (string.IsNullOrWhiteSpace(Name) || string.IsNullOrWhiteSpace(Email) || string.IsNullOrWhiteSpace(Password))
+            {
+                LoginMessage = "Vul alle velden in om te registreren";
+                return;
+            }
+
+            Client newClient = new Client
+            {
+                Name = Name,
+                Email = Email,
+                Password = Password
+            };
+
+            bool success = _authService.Register(newClient);
+            LoginMessage = success ? "Registratie gelukt! Je kan nu inloggen." : "Registratie mislukt. Gebruiker bestaat al";
+        }
     }
-}
+    
+}    
+
